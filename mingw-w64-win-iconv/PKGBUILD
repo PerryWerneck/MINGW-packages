@@ -1,0 +1,39 @@
+_realname=win-iconv
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=0.0.8
+pkgrel=1
+arch=(i686 x86_64)
+pkgdesc="Iconv implementation using Win32 API"
+depends=()
+
+makedepends=("${MINGW_PACKAGE_PREFIX}-cmake"
+             "${MINGW_PACKAGE_PREFIX}-cc")
+
+options=(!strip !buildflags staticlibs)
+conflicts=(${MINGW_PACKAGE_PREFIX}-libiconv)
+provides=(${MINGW_PACKAGE_PREFIX}-libiconv)
+license=("Public Domain")
+url="http://code.google.com/p/win-iconv"
+source=("https://github.com/win-iconv/win-iconv/archive/v$pkgver.tar.gz")
+md5sums=('e4574721c2d9667af32283175c828833')
+
+build() {
+  mkdir -p "${srcdir}"/build-${MSYSTEM} && cd "${srcdir}"/build-${MSYSTEM}
+
+  ${MINGW_PREFIX}/bin/cmake.exe \
+    -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_STATIC=ON \
+    -DBUILD_EXECUTABLE=OFF \
+    ../${_realname}-${pkgver}
+
+  ${MINGW_PREFIX}/bin/cmake.exe --build .
+
+}
+
+package() {
+  cd "${srcdir}"/build-${MSYSTEM}
+  DESTDIR="${pkgdir}" ${MINGW_PREFIX}/bin/cmake.exe --install .
+}
+
